@@ -55,7 +55,7 @@ train_set = torchvision.datasets.FashionMNIST(root="./data",
 # images, labels = next(iter(train_loader))
 # grid = torchvision.utils.make_grid(images)
 # tb.add_image("images", grid)
-# tb.add_graph(model, images)
+# tb.add_graph(model)
 # tb.close()
 
 
@@ -92,11 +92,18 @@ for run_id, (lr, batch_size, shuffle) in enumerate(product(*param_values)):
     comment = f' batch_size = {batch_size} lr = {lr} shuffle = {shuffle}'
     tb = SummaryWriter(comment=comment)
 
+
     for epoch in range(3):
         total_loss = 0
         total_correct = 0
-        for images, labels in train_loader:
+        for idx, (images, labels) in enumerate(train_loader):
+            # grid = torchvision.utils.make_grid(images)
+            # tb.add_image("input images", grid, global_step=idx)
+
             images, labels = images.to(device), labels.to(device)
+            if idx == 0:
+                tb.add_graph(model, images)
+
             preds = model(images)
 
             loss = criterion(preds, labels)
@@ -110,6 +117,10 @@ for run_id, (lr, batch_size, shuffle) in enumerate(product(*param_values)):
         tb.add_scalar("Loss", total_loss, epoch)
         tb.add_scalar("Correct", total_correct, epoch)
         tb.add_scalar("Accuracy", total_correct / len(train_set), epoch)
+
+        for name, weight in model.named_parameters():
+            tb.add_histogram(name, weight, epoch)
+            tb.add_histogram(f'{name}.grad', weight.grad, epoch)
 
         print("batch_size:", batch_size, "lr:", lr, "shuffle:", shuffle)
         print("epoch:", epoch, "total_correct:", total_correct, "loss:", total_loss)

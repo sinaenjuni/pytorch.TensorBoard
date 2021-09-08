@@ -6,7 +6,7 @@ Guide to Using TensorBoard with PyTorch
 pytorch
 tensorboard
 
-optional:
+optional(with GPU):
 torchvision
 cudatoolkit
 
@@ -24,7 +24,7 @@ conda install -c conda-forge tensorboard
    
 2. Displaying Images And Graphs with TensorBoard:
    ```python
-   tb = SummaryWriter(log_dir='./tb', comment='tb')
+   tb = SummaryWriter(log_dir='./runs', comment=[INDEXING])
    model = CNN()
    images, labels = next(iter(train_loader))
    grid = torchvision.utils.make_grid(images)
@@ -33,6 +33,12 @@ conda install -c conda-forge tensorboard
    tb.close()
    ```
    
+   ####TIP
+   Easy to view image list if use global_step parameter 
+   ```python
+   tb.add_image("images", grid, global_step=idx)
+      
+   ```
    
 3. Start Tensorboard sever
    ```shell
